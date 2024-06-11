@@ -11,9 +11,15 @@ from discord.ext.commands import Context, Greedy, Bot
 from discord.errors import HTTPException
 from discord import app_commands
 import keep_alive
+import requests
+import random
+import interactions
 
-with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-    secrets = json.load(f)
+# TODO : If you are running it locally, uncomment the below line and comment the one after that
+# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+#     secrets = json.load(f)
+#     token = secrets["TOKEN"]
+token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
@@ -65,12 +71,12 @@ async def on_presence_update(before, after):
         print(
             f"Status change: {before.name} went from {before.status} to {after.status} at {datetime.datetime.now()}"
         )
-        with open("./userlog.txt", "r") as f:
-            data = f.readlines()
-        data.append(f"{after.name} is now {after.status}\n")
-        with open("./userlog.txt", "w") as f:
-            f.writelines(data)
-        print(after)
+        # with open("./userlog.txt", "r") as f:
+        #     data = f.readlines()
+        # data.append(f"{after.name} is now {after.status}\n")
+        # with open("./userlog.txt", "w") as f:
+        #     f.writelines(data)
+        # print(after)
     # if before.activity != after.activity:
     #     if before.status == discord.Status.offline:
     #         with open("./userlog.txt", "a") as f:
@@ -149,11 +155,6 @@ async def join(
         await client.voice_clients[0].main_mute()
     if deafen:
         await client.voice_clients[0].main_deafen()
-
-
-import requests
-import random
-import interactions
 
 
 @client.tree.command()
@@ -238,4 +239,4 @@ handler = logging.StreamHandler()
 
 keep_alive.keep_alive()
 
-client.run(secrets["TOKEN"])
+client.run(token)
