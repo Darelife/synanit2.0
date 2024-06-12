@@ -10,16 +10,18 @@ from discord import Object
 from discord.ext.commands import Context, Greedy, Bot
 from discord.errors import HTTPException
 from discord import app_commands
+from discord.ui import Button, View
 import keep_alive
 import requests
 import random
 import interactions
+import asyncio
 
 # TODO : If you are running it locally, uncomment the below line and comment the one after that
-# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-#     secrets = json.load(f)
-#     token = secrets["TOKEN"]
-token = os.getenv("TOKEN")
+with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+    secrets = json.load(f)
+    token = secrets["TOKEN"]
+# token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
@@ -157,6 +159,12 @@ async def join(
         await client.voice_clients[0].main_deafen()
 
 
+class ButtonView(View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(Button(label="Click Me", custom_id="refreshCodeforceQuestion"))
+
+
 @client.tree.command()
 async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 1400):
     await interaction.response.defer()
@@ -194,6 +202,7 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
             ):
                 problemSet.append(problem)
             # problemSet.append(problem)
+    view = ButtonView()
     if problemSet:
         problem = random.choice(problemSet)
         problemName = f'{problem["index"]}. {problem["name"]}'
@@ -213,9 +222,51 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
             # f"Problem: {problemLink}\nRating: {problem['rating']}\nTags: {", ".join(problem['tags'])}\n",
             embeds=[embeds],
             ephemeral=False,
+            view=view,
         )
     else:
         await interaction.followup.send("No problems found", ephemeral=False)
+
+    # now, wait for the button click
+    while True:
+        try:
+            button_interaction = await client.wait_for("interaction", timeout=60)
+            if button_interaction.data["custom_id"] == "refreshCodeforceQuestion":
+                # print("Button clicked!")  # it works
+                problem = random.choice(problemSet)
+                problemName = f'{problem["index"]}. {problem["name"]}'
+                problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+                embeds = interactions.Embed(
+                    title=problemName,
+                    description=f"Rating: `{problem['rating']}`",
+                    url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
+                    color=color,
+                )
+                # embeds.add_field(
+                #     name="Rating", value=f"`{problem['rating']}`", inline=False
+                # )
+                view2 = ButtonView()
+                embeds.add_field(
+                    name="Tags", value=f"`{', '.join(problem['tags'])}`", inline=False
+                )
+                await button_interaction.message.edit(embeds=[embeds], view=view2)
+
+        # Do additional processing here
+        except asyncio.TimeoutError:
+            break
+
+
+# @client.event
+# async def on_interaction(interaction: discord.Interaction):
+#     if interaction.type == discord.InteractionType.component:
+#         if interaction.data["custom_id"] == "refreshCodeforceQuestion":
+#             # Check if the bot has already responded to the interaction
+#             if not interaction.response.is_done():
+#                 # If not, send an initial response
+#                 # await interaction.response.send_message("Processing...")
+#                 pass
+#             # Then, edit the original response
+#             await interaction.edit_original_response(content="Button clicked!")
 
 
 @client.tree.command()
@@ -237,6 +288,6 @@ async def invite(interaction: discord.Interaction):
 
 handler = logging.StreamHandler()
 
-keep_alive.keep_alive()
+# keep_alive.keep_alive()
 
 client.run(token)
