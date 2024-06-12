@@ -18,10 +18,10 @@ import interactions
 import asyncio
 
 # TODO : If you are running it locally, uncomment the below line and comment the one after that
-with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-    secrets = json.load(f)
-    token = secrets["TOKEN"]
-# token = os.getenv("TOKEN")
+# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+#     secrets = json.load(f)
+#     token = secrets["TOKEN"]
+token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
