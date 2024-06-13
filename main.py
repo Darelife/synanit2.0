@@ -160,9 +160,15 @@ async def join(
 
 
 class ButtonView(View):
-    def __init__(self):
+    def __init__(self, questionNumber=1):
         super().__init__()
-        self.add_item(Button(label="Click Me", custom_id="refreshCodeforceQuestion"))
+        self.questionNumber = questionNumber
+        self.add_item(
+            Button(
+                label=f"➡️ Next Question (Q{questionNumber})",
+                custom_id="refreshCodeforceQuestion",
+            )
+        )
 
 
 @client.tree.command()
@@ -228,7 +234,9 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
         await interaction.followup.send("No problems found", ephemeral=False)
 
     # now, wait for the button click
+    questionNumber = 1
     while True:
+        questionNumber += 1
         try:
             button_interaction = await client.wait_for("interaction", timeout=60)
             if button_interaction.data["custom_id"] == "refreshCodeforceQuestion":
@@ -246,7 +254,7 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
                 # embeds.add_field(
                 #     name="Rating", value=f"`{problem['rating']}`", inline=False
                 # )
-                view2 = ButtonView()
+                view2 = ButtonView(questionNumber)
                 embeds.add_field(
                     name="Tags", value=f"`{', '.join(problem['tags'])}`", inline=False
                 )
