@@ -272,7 +272,7 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
 @client.tree.command()
 async def invite(interaction: discord.Interaction):
     await interaction.response.send_message(
-        "https://discord.com/oauth2/authorize?client_id=980733466968748122&permissions=18015352965184&integration_type=1&scope=applications.commands+bot",
+        "https://discord.com/oauth2/authorize?client_id=980733466968748122&permissions=18015352965184&integration_type=0&scope=applications.commands+bot",
         ephemeral=False,
     )
 
