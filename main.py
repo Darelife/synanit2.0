@@ -172,7 +172,7 @@ class ButtonView(View):
 
 
 @client.tree.command()
-async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 1400):
+async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 1500):
     await interaction.response.defer()
     colours = [0xDC143C, 0xD35400, 0x48C9B0, 0x7FB3D5]
     color = random.choice(colours)
@@ -209,60 +209,73 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
                 problemSet.append(problem)
             # problemSet.append(problem)
     view = ButtonView()
-    if problemSet:
-        problem = random.choice(problemSet)
-        problemName = f'{problem["index"]}. {problem["name"]}'
-        problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
-        embeds = interactions.Embed(
-            title=problemName,
-            description=f"Rating: `{problem['rating']}`",
-            url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
-            color=color,
-        )
-        # embeds.add_field(name="Rating", value=f"`{problem['rating']}`", inline=False)
-        embeds.add_field(
-            name="Tags", value=f"`{', '.join(problem['tags'])}`", inline=False
-        )
+    try:
+        button_interaction = await client.wait_for("interaction", timeout=300)
+        if problemSet:
+            problem = random.choice(problemSet)
+            problemName = f'{problem["index"]}. {problem["name"]}'
+            problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+            embeds = interactions.Embed(
+                title=problemName,
+                description=f"Rating: `{problem['rating']}`",
+                url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
+                color=color,
+            )
+            # embeds.add_field(name="Rating", value=f"`{problem['rating']}`", inline=False)
+            embeds.add_field(
+                name="Tags", value=f"`{', '.join(problem['tags'])}`", inline=False
+            )
 
-        await interaction.followup.send(
-            # f"Problem: {problemLink}\nRating: {problem['rating']}\nTags: {", ".join(problem['tags'])}\n",
-            embeds=[embeds],
-            ephemeral=False,
-            view=view,
-        )
-    else:
-        await interaction.followup.send("No problems found", ephemeral=False)
+            await interaction.followup.send(
+                # f"Problem: {problemLink}\nRating: {problem['rating']}\nTags: {", ".join(problem['tags'])}\n",
+                embeds=[embeds],
+                ephemeral=False,
+                view=view,
+            )
+        else:
+            await interaction.followup.send("No problems found", ephemeral=False)
 
-    # now, wait for the button click
-    questionNumber = 1
-    while True:
-        questionNumber += 1
-        try:
-            button_interaction = await client.wait_for("interaction", timeout=60)
-            if button_interaction.data["custom_id"] == "refreshCodeforceQuestion":
-                await button_interaction.response.defer()
-                # print("Button clicked!")  # it works
-                problem = random.choice(problemSet)
-                problemName = f'{problem["index"]}. {problem["name"]}'
-                problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
-                embeds = interactions.Embed(
-                    title=problemName,
-                    description=f"Rating: `{problem['rating']}`",
-                    url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
-                    color=color,
-                )
-                # embeds.add_field(
-                #     name="Rating", value=f"`{problem['rating']}`", inline=False
-                # )
+        # now, wait for the button click
+        questionNumber = 1
+        while True:
+            questionNumber += 1
+            try:
                 view2 = ButtonView(questionNumber)
-                embeds.add_field(
-                    name="Tags", value=f"`{', '.join(problem['tags'])}`", inline=False
-                )
-                await button_interaction.message.edit(embeds=[embeds], view=view2)
+                button_interaction = await client.wait_for("interaction", timeout=60)
+                if button_interaction.data["custom_id"] == "refreshCodeforceQuestion":
+                    await button_interaction.response.defer()
+                    # print("Button clicked!")  # it works
+                    problem = random.choice(problemSet)
+                    problemName = f'{problem["index"]}. {problem["name"]}'
+                    problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+                    embeds = interactions.Embed(
+                        title=problemName,
+                        description=f"Rating: `{problem['rating']}`",
+                        url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
+                        color=color,
+                    )
+                    # embeds.add_field(
+                    #     name="Rating", value=f"`{problem['rating']}`", inline=False
+                    # )
+                    embeds.add_field(
+                        name="Tags",
+                        value=f"`{', '.join(problem['tags'])}`",
+                        inline=False,
+                    )
+                    await button_interaction.message.edit(embeds=[embeds], view=view2)
 
-        # Do additional processing here
-        except asyncio.TimeoutError:
-            break
+            # Do additional processing here
+            except asyncio.TimeoutError:
+                for item in view2.children:
+                    if isinstance(item, discord.ui.Button):
+                        item.disabled = True
+                await button_interaction.message.edit(view=view2)
+                break
+    except asyncio.TimeoutError:
+        for item in view.children:
+            if isinstance(item, discord.ui.Button):
+                item.disabled = True
+        await interaction.followup.send(view=view)
 
 
 # @client.event
