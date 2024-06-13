@@ -232,6 +232,7 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 14
         try:
             button_interaction = await client.wait_for("interaction", timeout=60)
             if button_interaction.data["custom_id"] == "refreshCodeforceQuestion":
+                await button_interaction.response.defer()
                 # print("Button clicked!")  # it works
                 problem = random.choice(problemSet)
                 problemName = f'{problem["index"]}. {problem["name"]}'
