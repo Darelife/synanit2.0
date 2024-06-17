@@ -1,0 +1,174 @@
+[
+  {
+    "id": 1,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ]
+  },
+  {
+    "id": 2,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ]
+  },
+  {
+    "id": 3,
+    "amount": 100,
+    "option1": "71loses",
+    "option2": "unbasedWins",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ]
+  },
+  {
+    "id": 4,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "done": true,
+    "result": "b"
+  },
+  {
+    "id": 5,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": true,
+    "result": "a"
+  },
+  {
+    "id": 6,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": false
+  },
+  {
+    "id": 7,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": true,
+    "result": "a"
+  },
+  {
+    "id": 8,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "done": true,
+    "result": "a"
+  },
+  {
+    "id": 9,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": true,
+    "result": "b"
+  },
+  {
+    "id": 10,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "done": false
+  },
+  {
+    "id": 11,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "done": false
+  },
+  {
+    "id": 12,
+    "amount": 10,
+    "option1": "a",
+    "option2": "b",
+    "option1_reactions": [
+      980733466968748122,
+      497352662451224578
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": true,
+    "result": "a"
+  }
+]
