@@ -10,7 +10,7 @@ def main():
 
 
 def run():
-    app.run(port=4000)
+    app.run(host="0.0.0.0", port=4000)
 
 
 def keep_alive():
