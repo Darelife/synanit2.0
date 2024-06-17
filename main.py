@@ -459,13 +459,13 @@ async def betresult(ctx, id: int, result: str):
             res += f'{" ".join(winners)} have won the bet'
     else:
         if (len(winners) == 1) and (len(losers) == 1):
-            res += f"{" ".join(winners)} has won the bet, and {" ".join(losers)} has lost the bet"
+            res += f'{" ".join(winners)} has won the bet, and {" ".join(losers)} has lost the bet'
         elif (len(winners) == 1) and (len(losers) > 1):
-            res += f"{" ".join(winners)} has won the bet, and {" ".join(losers)} have lost the bet"
+            res += f'{" ".join(winners)} has won the bet, and {" ".join(losers)} have lost the bet'
         elif (len(winners) > 1) and (len(losers) == 1):
-            res += f"{" ".join(winners)} have won the bet, and {" ".join(losers)} has lost the bet"
+            res += f'{" ".join(winners)} have won the bet, and {" ".join(losers)} has lost the bet'
         else:
-            res += f"{" ".join(winners)} have won the bet, and {" ".join(losers)} have lost the bet"
+            res += f'{" ".join(winners)} have won the bet, and {" ".join(losers)} have lost the bet'
     await ctx.send(res)
     response = ""
     for key, value in d.items():
