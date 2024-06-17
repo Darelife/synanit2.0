@@ -18,10 +18,10 @@ import interactions
 import asyncio
 
 # TODO : If you are running it locally, uncomment the below line and comment the one after that
-# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-#     secrets = json.load(f)
-#     token = secrets["TOKEN"]
-token = os.getenv("TOKEN")
+with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+    secrets = json.load(f)
+    token = secrets["TOKEN"]
+# token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
@@ -32,7 +32,7 @@ class Synanit(Bot):
             intents=intents,
             application_id=980733466968748122,
             status=discord.Status.idle,
-            activity=discord.Game(name="with Darelife"),
+            activity=discord.Game(name="with AlgoManiax's existence"),
         )
         extensions = []
         for filename in os.listdir("./Cogs"):
@@ -60,6 +60,8 @@ class Synanit(Bot):
         MY_GUILD = Object(id=697493731611508737)
         ALGO_GUILD = Object(id=1246441351965446236)
         await self.tree.sync(guild=MY_GUILD)
+        await self.tree.sync(guild=ALGO_GUILD)
+        self.tree.copy_global_to(guild=ALGO_GUILD)
         await self.tree.sync(guild=ALGO_GUILD)
 
 

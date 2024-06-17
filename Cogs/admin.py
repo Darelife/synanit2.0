@@ -8,13 +8,22 @@ from typing import Literal, Optional
 import discord
 from discord import File, Object
 from discord.errors import HTTPException
-from discord.ext.commands import Bot, Cog, Context, ExtensionError, Greedy, command, group, is_owner
+from discord.ext.commands import (
+    Bot,
+    Cog,
+    Context,
+    ExtensionError,
+    Greedy,
+    command,
+    group,
+    is_owner,
+)
+
 
 class Mod(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self._last_result = None
-
 
     @command(hidden=True)
     @is_owner()
@@ -57,7 +66,12 @@ class Mod(Cog):
 
     @command(name="sync2", hidden=False)
     @is_owner()
-    async def _sync(self, ctx: Context, guilds: Greedy[Object], spec: Optional[Literal["~", "*"]] = None) -> None:
+    async def _sync(
+        self,
+        ctx: Context,
+        guilds: Greedy[Object],
+        spec: Optional[Literal["~", "*"]] = None,
+    ) -> None:
         """Syncs the bot with the guilds.
         ,sync -> global sync
         ,sync ~ -> sync current guild
@@ -74,7 +88,9 @@ class Mod(Cog):
             else:
                 fmt = await self.bot.tree.sync()
 
-            await ctx.send(f"Synced {len(fmt)} commands {'globally' if spec is None else 'to the current guild.'}")
+            await ctx.send(
+                f"Synced {len(fmt)} commands {'globally' if spec is None else 'to the current guild.'}"
+            )
             return
 
         fmt = 0
@@ -92,7 +108,7 @@ class Mod(Cog):
     def cleanup_code(content: str) -> str:
         """Automatically removes code blocks from the code."""
         # remove ```py\n```
-        content = content.replace("```", "\n```")
+        # content = content.replace("```", "\n```")
         content = content.replace("```python", "\n```")
         content = content.replace("```py", "\n```")
         if content.startswith("```") and content.endswith("```"):

@@ -13,5 +13,18 @@
     ],
     "done": true,
     "result": "b"
+  },
+  {
+    "id": 2,
+    "amount": 40,
+    "option1": "shrey looses",
+    "option2": "all of the above",
+    "option1_reactions": [
+      980733466968748122
+    ],
+    "option2_reactions": [
+      980733466968748122
+    ],
+    "done": false
   }
 ]
