@@ -18,20 +18,28 @@ import interactions
 import asyncio
 
 # TODO : If you are running it locally, uncomment the below line and comment the one after that
-# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-#     secrets = json.load(f)
-#     token = secrets["TOKEN"]
-token = os.getenv("TOKEN")
+with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+    secrets = json.load(f)
+    token = secrets["TOKEN"]
+# token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
     def __init__(self):
         intents = discord.Intents.all()
         super().__init__(
-            command_prefix="?s", intents=intents, application_id=980733466968748122
+            command_prefix="?s",
+            intents=intents,
+            application_id=980733466968748122,
+            status=discord.Status.idle,
+            activity=discord.Game(name="with Darelife"),
         )
+        extensions = []
+        for filename in os.listdir("./Cogs"):
+            if filename.endswith(".py"):
+                extensions.append(f"Cogs.{filename[:-3]}")
         # self.initial_extensions = ["Cogs.Mod", "Cogs.Anime", "Cogs.Manga", "Cogs.Character"]
-        self.initial_extensions = ["Cogs.slash", "Cogs.admin"]
+        self.initial_extensions = extensions
 
     async def setup_hook(self):
         self.session = aiohttp.ClientSession()
@@ -50,7 +58,9 @@ class Synanit(Bot):
     async def on_ready(self):
         print("Ready!")
         MY_GUILD = Object(id=697493731611508737)
+        ALGO_GUILD = Object(id=1246441351965446236)
         await self.tree.sync(guild=MY_GUILD)
+        await self.tree.sync(guild=ALGO_GUILD)
 
 
 client = Synanit()
@@ -171,12 +181,13 @@ class ButtonView(View):
         )
 
 
+# TODO : Currently, if the user doesn't click a button...after a particular time frame, the button doesn't become grey and the user can still click it. Fix this.
 @client.tree.command()
 async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 1500):
     await interaction.response.defer()
     colours = [0xDC143C, 0xD35400, 0x48C9B0, 0x7FB3D5]
     color = random.choice(colours)
-    url = "https://codeforces.com/api/problemset.problems?tags=implementation"
+    url = "https://codeforces.com/api/problemset.problems"
     # json
     response = requests.get(url)
     data = response.json()
@@ -210,7 +221,6 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 15
             # problemSet.append(problem)
     view = ButtonView()
     try:
-        button_interaction = await client.wait_for("interaction", timeout=300)
         if problemSet:
             problem = random.choice(problemSet)
             problemName = f'{problem["index"]}. {problem["name"]}'
@@ -237,6 +247,7 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 15
 
         # now, wait for the button click
         questionNumber = 1
+        # button_interaction = await client.wait_for("interaction", timeout=300)
         while True:
             questionNumber += 1
             try:
@@ -278,60 +289,12 @@ async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 15
         await button_interaction.message.edit(view=view)
 
 
-# @client.event
-# async def on_interaction(interaction: discord.Interaction):
-#     if interaction.type == discord.InteractionType.component:
-#         if interaction.data["custom_id"] == "refreshCodeforceQuestion":
-#             # Check if the bot has already responded to the interaction
-#             if not interaction.response.is_done():
-#                 # If not, send an initial response
-#                 # await interaction.response.send_message("Processing...")
-#                 pass
-#             # Then, edit the original response
-#             await interaction.edit_original_response(content="Button clicked!")
-
-
 @client.tree.command()
 async def invite(interaction: discord.Interaction):
     await interaction.response.send_message(
         "https://discord.com/oauth2/authorize?client_id=980733466968748122&permissions=18015352965184&integration_type=0&scope=applications.commands+bot",
         ephemeral=False,
     )
-
-
-@client.tree.command()
-async def bet(
-    interaction: discord.Interaction, amount: int, option1: str, option2: str
-):
-    # add reaction to the message
-    await interaction.response.defer()
-    with open("bets.json", "r") as f:
-        data = json.load(f)
-    bet_id = len(data) + 1
-    message = await interaction.followup.send(
-        f"Bet between {option1} and {option2} for {amount} coins -> `ID: {bet_id}`"
-    )
-    await message.add_reaction("🇦")
-    await message.add_reaction("🇧")
-    # wait for 60 seconds, and then lock the bet, and give the bet an ID -> store the bet in a json file
-    await asyncio.sleep(60)
-    await message.edit(content=f"Bet locked between {option1} and {option2}")
-    # check the reactions and store the data
-    reactions = await message.reactions
-    option1_reactions = reactions[0].count
-    option2_reactions = reactions[1].count
-
-    data1 = {
-        "id": bet_id,
-        "amount": amount,
-        "option1": option1,
-        "option2": option2,
-        "option1_reactions": option1_reactions,
-        "option2_reactions": option2_reactions,
-    }
-    data.append(data1)
-    with open("bets.json", "w") as f:
-        json.dump(data, f)
 
 
 # logger = logging.getLogger('discord')
@@ -342,158 +305,6 @@ async def bet(
 # formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 # handler.setFormatter(formatter)
 # logger.addHandler(handler)
-@client.command()
-async def bbet(ctx, amount: int, option1: str, option2: str):
-    with open("bets.json", "r") as f:
-        data = json.load(f)
-    bet_id = len(data) + 1
-    message = await ctx.send(
-        f"Bet between {option1} and {option2} for {amount} coins -> `ID: {bet_id}`"
-    )
-    await message.add_reaction("🇦")
-    await message.add_reaction("🇧")
-    # wait for 60 seconds, and then lock the bet, and give the bet an ID -> store the bet in a json file
-    await asyncio.sleep(10)
-    await message.edit(
-        content=f"Bet locked between {option1} and {option2} -> ID: {bet_id}"
-    )
-    # check the reactions and store the data
-    message = await message.channel.fetch_message(message.id)
-    reactions = message.reactions
-
-    option1_people = [user async for user in reactions[0].users()]
-    option2_people = [user async for user in reactions[1].users()]
-
-    option1_people_ids = [user.id for user in option1_people]  # Extract user IDs
-    option2_people_ids = [user.id for user in option2_people]
-
-    data1 = {
-        "id": bet_id,
-        "amount": amount,
-        "option1": option1,
-        "option2": option2,
-        "option1_reactions": option1_people_ids,  # Store user IDs instead of User objects
-        "option2_reactions": option2_people_ids,
-        "done": False,
-    }
-    # await ctx.send(data1)
-    data.append(data1)
-    # Now, data1 contains only serializable types
-    with open("bets.json", "w") as f:
-        json.dump(data, f, indent=2)
-    await ctx.send("Bet stored successfully")
-    await ctx.send("Option 1 people: ")
-    t = ""
-    for i in data1["option1_reactions"]:
-        t += f"<@!{i}> "
-    await ctx.send(t)
-    t = ""
-    await ctx.send("Option 2 people: ")
-    for i in data1["option2_reactions"]:
-        t += f"<@!{i}> "
-    await ctx.send(t)
-
-
-@client.command()
-async def betresult(ctx, id: int, result: str):
-    with open("bets.json", "r") as f:
-        data = json.load(f)
-    t = data[id - 1]
-    if t["done"]:
-        await ctx.send("The bet has already been resolved")
-        return
-    if result == "1":
-        t["result"] = t["option1"]
-    elif result == "2":
-        t["result"] = t["option2"]
-    else:
-        t["result"] = "draw"
-    with open("betResults.json", "r") as f:
-        data1 = json.load(f)
-    d = {}
-    if result == "1":
-        for i in t["option1_reactions"]:
-            if i not in d:
-                d[i] = t["amount"]
-            else:
-                d[i] += t["amount"]
-        for i in t["option2_reactions"]:
-            if i not in d:
-                d[i] = -t["amount"]
-            else:
-                d[i] -= t["amount"]
-    elif result == "2":
-        for i in t["option2_reactions"]:
-            if i not in d:
-                d[i] = t["amount"]
-            else:
-                d[i] += t["amount"]
-        for i in t["option1_reactions"]:
-            if i not in d:
-                d[i] = -t["amount"]
-            else:
-                d[i] -= t["amount"]
-    winners = []
-    losers = []
-    for key, value in d.items():
-        if (value) > 0:
-            winners.append(f"<@!{key}>")
-        elif (value) < 0:
-            losers.append(f"<@!{key}>")
-        if str(key) in data1:
-            data1[(str(key))] += value  # Update existing key with new value
-        else:
-            data1[(str(key))] = value  # Add new key-value pair
-    res = ""
-    if (len(winners) == 0) and (len(losers) == 0):
-        res += "The bet was a draw"
-    elif len(winners) == 0:
-        if len(losers) == 1:
-            res += f'{" ".join(losers)} has lost the bet'
-        else:
-            res += f'{" ".join(losers)} have lost the bet'
-    elif len(losers) == 0:
-        if len(winners) == 1:
-            res += f'{" ".join(winners)} has won the bet'
-        else:
-            res += f'{" ".join(winners)} have won the bet'
-    else:
-        if (len(winners) == 1) and (len(losers) == 1):
-            res += f'{" ".join(winners)} has won the bet, and {" ".join(losers)} has lost the bet'
-        elif (len(winners) == 1) and (len(losers) > 1):
-            res += f'{" ".join(winners)} has won the bet, and {" ".join(losers)} have lost the bet'
-        elif (len(winners) > 1) and (len(losers) == 1):
-            res += f'{" ".join(winners)} have won the bet, and {" ".join(losers)} has lost the bet'
-        else:
-            res += f'{" ".join(winners)} have won the bet, and {" ".join(losers)} have lost the bet'
-    await ctx.send(res)
-    response = ""
-    for key, value in d.items():
-        if str(key) in data1:
-            if d[key] > 0:
-                response += f"<@!{key}> : {value - d[key]} + {d[key]} = {value}\n"
-            elif d[key] < 0:
-                response += f"<@!{key}> : {value - d[key]} - {-d[key]} = {value}\n"
-            else:
-                response += f"<@!{key}> : {value}\n"
-        else:
-            response += f"<@!{key}> : {value}\n"
-    await ctx.send(response)
-    with open("betResults.json", "w") as f:
-        json.dump(data1, f, indent=2)
-    data[id - 1]["done"] = True
-    with open("bets.json", "w") as f:
-        json.dump(data, f, indent=2)
-    for key, value in data1.items():
-        # get userName from ID
-        id = int(key)
-        user = await client.fetch_user(id)
-        nick = user.name
-        if value < 0:  # If the user has lost money
-            await ctx.send(f"{nick} has lost {-value} coins")
-        else:
-            await ctx.send(f"{nick} has won {value} coins")
-
 
 handler = logging.StreamHandler()
 

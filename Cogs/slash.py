@@ -18,18 +18,7 @@ class Slash(commands.Cog):
     #     channel = member.guild.system_channel
     #     if channel is not None:
     #         await channel.send(f'Welcome {member.mention}.')
-
-    @commands.command()
-    async def hello(self, ctx, *, member: Member = None):
-        """Says hello"""
-        await ctx.send(f"Hello {member.mention if member else ctx.author.mention}.")
-
     # Slash commands
-    @app_commands.command(name="command-1")
-    async def my_command(self, interaction: Interaction) -> None:
-        """/command-1"""
-        await interaction.response.send_message("Hello from command 1!", ephemeral=True)
-
     @app_commands.command(name="char")
     async def _character(self, interaction: Interaction, text: str):
         """Writes the numbers of characters in the string"""
