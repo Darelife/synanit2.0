@@ -449,14 +449,14 @@ async def betresult(ctx, id: int, result: str):
         res += "The bet was a draw"
     elif len(winners) == 0:
         if len(losers) == 1:
-            res += f"{" ".join(losers)} has lost the bet"
+            res += f'{" ".join(losers)} has lost the bet'
         else:
-            res += f"{" ".join(losers)} have lost the bet"
+            res += f'{" ".join(losers)} have lost the bet'
     elif len(losers) == 0:
         if len(winners) == 1:
-            res += f"{" ".join(winners)} has won the bet"
+            res += f'{" ".join(winners)} has won the bet'
         else:
-            res += f"{" ".join(winners)} have won the bet"
+            res += f'{" ".join(winners)} have won the bet'
     else:
         if (len(winners) == 1) and (len(losers) == 1):
             res += f"{" ".join(winners)} has won the bet, and {" ".join(losers)} has lost the bet"
