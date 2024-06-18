@@ -291,7 +291,6 @@ Eleventh to Twentieth - `1 Point`
     @app_commands.command(name="challenge-leaderboard-reset")
     async def _challenge_leaderboard_reset(self, interaction: Interaction):
         """Reset the challenge"""
-        channel_id = int(channel_id)
         await interaction.response.defer()
         if (
             interaction.user.id != 497352662451224578
