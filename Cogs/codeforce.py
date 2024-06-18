@@ -261,19 +261,18 @@ Eleventh to Twentieth - `1 Point`
         res = ""
         i = 1
 
-#         await message.edit(
-#             content=f"""LEADERBOARD
-# ```
-# 1. Darelife - 0
-# 2. prakharg11 - 0
-# 3. shrey71 - 0
-# 4. mathmath33 - 0
-# 5. unbased - 0
-# 6. harshb - 0
-# 7. acsde - 0
-# ```"""
-#         )
-
+        #         await message.edit(
+        #             content=f"""LEADERBOARD
+        # ```
+        # 1. Darelife - 0
+        # 2. prakharg11 - 0
+        # 3. shrey71 - 0
+        # 4. mathmath33 - 0
+        # 5. unbased - 0
+        # 6. harshb - 0
+        # 7. acsde - 0
+        # ```"""
+        #         )
 
         for key, value in sorted(
             points.items(), key=lambda item: item[1], reverse=True
@@ -288,6 +287,34 @@ Eleventh to Twentieth - `1 Point`
 ```"""
         )
         print(res)
+
+    @app_commands.command(name="challenge-leaderboard-reset")
+    async def _challenge_leaderboard_reset(self, interaction: Interaction):
+        """Reset the challenge"""
+        channel_id = int(channel_id)
+        await interaction.response.defer()
+        if (
+            interaction.user.id != 497352662451224578
+            and not interaction.user.permissions_in(interaction.channel).administrator
+        ):
+            return await interaction.response.send_message(
+                "You do not have the required permissions to run this command"
+            )
+        channel = self.bot.get_channel(1251518237951131698)
+        message = await channel.fetch_message(1252313189169758268)
+        await message.edit(
+            content=f"""LEADERBOARD
+```
+1. Darelife - 0
+2. prakharg11 - 0
+3. shrey71 - 0
+4. mathmath33 - 0
+5. unbased - 0
+6. harshb - 0
+7. acsde - 0
+```"""
+        )
+        await interaction.followup.send("```Leaderboard reset```")
 
 
 async def setup(bot: commands.Bot):
