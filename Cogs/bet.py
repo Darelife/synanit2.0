@@ -226,6 +226,8 @@ class bet(commands.Cog):
             else:
                 res += f"\n{nick} has won {value} coins"
         await interaction.followup.send(res)
+        user = await self.bot.fetch_user(497352662451224578)
+        await user.send(data1)
 
 
 async def setup(bot: commands.Bot):
