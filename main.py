@@ -308,8 +308,6 @@ async def invite(interaction: discord.Interaction):
 # handler.setFormatter(formatter)
 # logger.addHandler(handler)
 
-handler = logging.StreamHandler()
-
 keep_alive.keep_alive()
 
-client.run(token)
+client.run(token, log_level=logging.DEBUG)
