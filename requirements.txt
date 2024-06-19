@@ -3,3 +3,5 @@ aiohttp==3.9.5
 requests==2.31.0
 discord-py-interactions==5.12.1
 flask==3.0.2
+yt-dlp==2024.5.27
+youtube-search-python==1.6.6
