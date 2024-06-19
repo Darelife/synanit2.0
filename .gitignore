@@ -1,3 +1,5 @@
 secrets.json
 userlog.txt
 .env
+Cogs/music.py
+musicRequirements.txt
