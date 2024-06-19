@@ -6,6 +6,7 @@ from discord.ext import commands
 from discord.ui import View
 import json
 import asyncio
+import time
 
 
 class bet(commands.Cog):
@@ -22,15 +23,17 @@ class bet(commands.Cog):
             data = json.load(f)
         bet_id = len(data) + 1
         message = await interaction.followup.send(
-            f"Bet between {option1} and {option2} for {amount} coins -> `ID: {bet_id}`"
+            f"# Bet!\nOption A : {option1}\nOption B : {option2}\nAmount : {amount} coins\n`Bet ID : {bet_id}`"
         )
         print(message.id)
         await message.add_reaction("🇦")
         await message.add_reaction("🇧")
+        currentTime = time.time()
+        targetTime = currentTime + 60
         # wait for 60 seconds, and then lock the bet, and give the bet an ID -> store the bet in a json file
-        await asyncio.sleep(10)
+        await asyncio.sleep(60)
         await interaction.edit_original_response(
-            content=f"Bet locked between {option1} and {option2} -> ID: {bet_id}"
+            content=f"# Bet Locked \nOption A : {option1}\nOption B : {option2}\n`Bet ID: {bet_id}`\nTime Left : <t:{int(targetTime)}:R>"
         )
         message = await interaction.channel.fetch_message(message.id)
 
@@ -38,6 +41,14 @@ class bet(commands.Cog):
 
         option1_people = [user async for user in reactions[0].users()]
         option2_people = [user async for user in reactions[1].users()]
+
+        # remove the bot from the list of users
+        option1_people = [
+            user for user in option1_people if user.id != 980733466968748122
+        ]
+        option2_people = [
+            user for user in option2_people if user.id != 980733466968748122
+        ]
 
         option1_people_ids = [user.id for user in option1_people]  # Extract user IDs
         option2_people_ids = [user.id for user in option2_people]
@@ -50,6 +61,7 @@ class bet(commands.Cog):
             "option1_reactions": option1_people_ids,  # Store user IDs instead of User objects
             "option2_reactions": option2_people_ids,
             "done": False,
+            "result": None,
         }
         # await ctx.send(data1)
         data.append(data1)
@@ -60,10 +72,12 @@ class bet(commands.Cog):
         for i in data1["option1_reactions"]:
             t += f"<@!{i}> "
         t += "\nOption 2: "
-        for i in data1["option2_reactions"]:
-            t += f"<@!{i}> "
-        t += f"\nAmount: {data1['amount']}"
-        t += f"\nId: {data1['id']}"
+        if len(data1["option2_reactions"]) == 0:
+            t += "No one"
+        else:
+            for i in data1["option2_reactions"]:
+                t += f"<@!{i}> "
+        t += f"\nAmount: {data1['amount']}\n`Bet Id: {data1['id']}`"
         await interaction.edit_original_response(content=t)
 
     @app_commands.command(name="bet-info")
@@ -199,6 +213,7 @@ class bet(commands.Cog):
         with open("betResults.json", "w") as f:
             json.dump(data1, f, indent=2)
         data[id - 1]["done"] = True
+        data[id - 1]["result"] = result
         with open("bets.json", "w") as f:
             json.dump(data, f, indent=2)
         for key, value in data1.items():
