@@ -138,10 +138,24 @@ Eleventh to Twentieth - `1 Point`
         for i in data:
             if i["verdict"] == "OK" and i["problem"]["index"] == index:
                 if i["author"]["members"][0]["handle"] in handleList:
-                    submissions.append(i["author"]["members"][0]["handle"])
+                    submissions.append(
+                        (
+                            i["author"]["members"][0]["handle"],
+                            i["creationTimeSeconds"],
+                        )
+                    )
         points = {}
-        submissions.reverse()
-        submissions = list(set(submissions))
+        submissions.sort(key=lambda x: x[1])
+        # make sure that only one submission per user is counted (the least time taken submission)
+        submissions = [i[0] for i in submissions]
+        seen = set()
+        submissions_no_duplicates = [
+            x for x in submissions if not (x in seen or seen.add(x))
+        ]
+        submissions = submissions_no_duplicates
+
+        # submissions.reverse()
+        # submissions = list(set(submissions))
         for i in range(len(submissions)):
             if i == 0:
                 points[submissions[i]] = 10
@@ -202,11 +216,21 @@ Eleventh to Twentieth - `1 Point`
         for i in data:
             if i["verdict"] == "OK" and i["problem"]["index"] == index:
                 if i["author"]["members"][0]["handle"] in handleList:
-                    submissions.append(i["author"]["members"][0]["handle"])
+                    submissions.append(
+                        (
+                            i["author"]["members"][0]["handle"],
+                            i["creationTimeSeconds"],
+                        )
+                    )
         points = {}
-        # reverse submissions
-        submissions.reverse()
-        submissions = list(set(submissions))
+        submissions.sort(key=lambda x: x[1])
+        # make sure that only one submission per user is counted (the least time taken submission)
+        submissions = [i[0] for i in submissions]
+        seen = set()
+        submissions_no_duplicates = [
+            x for x in submissions if not (x in seen or seen.add(x))
+        ]
+        submissions = submissions_no_duplicates
         # submissions.sort(key=lambda x: submissions.count(x), reverse=True)
         for i in range(len(submissions)):
             if i == 0:
