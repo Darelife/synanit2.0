@@ -140,8 +140,10 @@ Eleventh to Twentieth - `1 Point`
                 if i["author"]["members"][0]["handle"] in handleList:
                     submissions.append(i["author"]["members"][0]["handle"])
         points = {}
-        # reverse submissions
+        # remove duplicates, but maintain order
         submissions = list(set(submissions))
+        user = await self.bot.fetch_user(497352662451224578)
+        await user.send(submissions)
         # submissions.sort(key=lambda x: submissions.count(x), reverse=True)
         for i in range(len(submissions)):
             if i == 0:
