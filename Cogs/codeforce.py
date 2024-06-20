@@ -142,7 +142,7 @@ Eleventh to Twentieth - `1 Point`
         points = {}
         # reverse submissions
         submissions = list(set(submissions))
-        submissions.sort(key=lambda x: submissions.count(x), reverse=True)
+        # submissions.sort(key=lambda x: submissions.count(x), reverse=True)
         for i in range(len(submissions)):
             if i == 0:
                 points[submissions[i]] = 10
