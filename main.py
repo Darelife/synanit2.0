@@ -310,4 +310,4 @@ async def invite(interaction: discord.Interaction):
 
 keep_alive.keep_alive()
 
-client.run(token, log_level=logging.DEBUG)
+client.run(token)

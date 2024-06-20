@@ -140,11 +140,8 @@ Eleventh to Twentieth - `1 Point`
                 if i["author"]["members"][0]["handle"] in handleList:
                     submissions.append(i["author"]["members"][0]["handle"])
         points = {}
-        # remove duplicates, but maintain order
+        submissions.reverse()
         submissions = list(set(submissions))
-        user = await self.bot.fetch_user(497352662451224578)
-        await user.send(submissions)
-        # submissions.sort(key=lambda x: submissions.count(x), reverse=True)
         for i in range(len(submissions)):
             if i == 0:
                 points[submissions[i]] = 10
@@ -155,8 +152,12 @@ Eleventh to Twentieth - `1 Point`
             elif i >= 10 and i <= 19:
                 points[submissions[i]] = 1
         res = ""
+        i = 1
+        point = {}
         for key, value in points.items():
-            res += f"{key} - {value}\n"
+            res += f"{i}. {key} - {value}\n"
+            point[key] = value
+            i += 1
         await interaction.followup.send(res)
 
     @app_commands.command(name="challenge-end")
@@ -204,6 +205,7 @@ Eleventh to Twentieth - `1 Point`
                     submissions.append(i["author"]["members"][0]["handle"])
         points = {}
         # reverse submissions
+        submissions.reverse()
         submissions = list(set(submissions))
         # submissions.sort(key=lambda x: submissions.count(x), reverse=True)
         for i in range(len(submissions)):
