@@ -26,9 +26,12 @@ class codeforces(commands.Cog):
         """A server challenge to grab the top spot in the leaderboard"""
         channel_id = int(channel_id)
         await interaction.response.defer()
+        with open("whitelist.json", "r") as f:
+            whitelist = json.load(f)
         if (
             interaction.user.id != 497352662451224578
-            and not interaction.user.permissions_in(interaction.channel).administrator
+            and interaction.user.id not in whitelist
+            # and not interaction.user.permissions_in(interaction.channel).administrator
         ):
             return await interaction.response.send_message(
                 "You do not have the required permissions to run this command"
@@ -108,9 +111,12 @@ Eleventh to Twentieth - `1 Point`
         channel_id = int(channel_id)
         message_id = int(message_id)
         await interaction.response.defer()
+        with open("whitelist.json", "r") as f:
+            whitelist = json.load(f)
         if (
             interaction.user.id != 497352662451224578
-            and not interaction.user.permissions_in(interaction.channel).administrator
+            and interaction.user.id not in whitelist
+            # and not interaction.user.permissions_in(interaction.channel).administrator
         ):
             return await interaction.response.send_message(
                 "You do not have the required permissions to run this command"
@@ -186,9 +192,12 @@ Eleventh to Twentieth - `1 Point`
         message_id = int(message_id)
         print("HELLO")
         await interaction.response.defer()
+        with open("whitelist.json", "r") as f:
+            whitelist = json.load(f)
         if (
             interaction.user.id != 497352662451224578
-            and not interaction.user.permissions_in(interaction.channel).administrator
+            and interaction.user.id not in whitelist
+            # and not interaction.user.permissions_in(interaction.channel).administrator
         ):
             return await interaction.response.send_message(
                 "You do not have the required permissions to run this command"
@@ -320,9 +329,12 @@ Eleventh to Twentieth - `1 Point`
     async def _challenge_leaderboard_reset(self, interaction: Interaction):
         """Reset the challenge"""
         await interaction.response.defer()
+        with open("whitelist.json", "r") as f:
+            whitelist = json.load(f)
         if (
             interaction.user.id != 497352662451224578
-            and not interaction.user.permissions_in(interaction.channel).administrator
+            and interaction.user.id not in whitelist
+            # and not interaction.user.permissions_in(interaction.channel).administrator
         ):
             return await interaction.response.send_message(
                 "You do not have the required permissions to run this command"
