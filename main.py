@@ -152,12 +152,12 @@ async def yo(interaction: discord.Interaction, name: str):
 @client.tree.command()
 async def join(
     interaction: discord.Interaction,
-    id: str,
+    channel_name: discord.TextChannel,
     message_append: str = None,
     mute: bool = False,
     deafen: bool = False,
-    say_hello: bool = False,
 ):
+    id = channel_name.id
     id = int(id)
     await interaction.response.defer()
     voice_channel = client.get_channel(id)
@@ -185,7 +185,11 @@ class ButtonView(View):
 
 # TODO : Currently, if the user doesn't click a button...after a particular time frame, the button doesn't become grey and the user can still click it. Fix this.
 @client.tree.command()
-async def qplz(interaction: discord.Interaction, tag: str = "", rating: int = 1500):
+@app_commands.describe(
+    rating="The rating of the problem",
+    tag="The tags of the problem : Format : +binary search, -dp",
+)
+async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = ""):
     await interaction.response.defer()
     colours = [0xDC143C, 0xD35400, 0x48C9B0, 0x7FB3D5]
     color = random.choice(colours)

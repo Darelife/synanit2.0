@@ -1,4 +1,4 @@
-from discord import app_commands
+from discord import app_commands, TextChannel
 from discord import File, Object, Member
 from discord import Colour, Interaction
 from discord.app_commands import Choice, Range, command, describe
@@ -18,12 +18,13 @@ class codeforces(commands.Cog):
     async def _challenge(
         self,
         interaction: Interaction,
+        channel_name: TextChannel,
         rating: int = 1200,
-        channel_id: str = "1251535031600550009",
         message: str = "The challenge is here!",
         tags: str = "",
     ):
         """A server challenge to grab the top spot in the leaderboard"""
+        channel_id = channel_name.id
         channel_id = int(channel_id)
         await interaction.response.defer()
         with open("whitelist.json", "r") as f:
@@ -105,9 +106,10 @@ Eleventh to Twentieth - `1 Point`
         self,
         interaction: Interaction,
         message_id: str,
-        channel_id: str,
+        channel_name: TextChannel,
     ):
         """Update the challenge message"""
+        channel_id = channel_name.id
         channel_id = int(channel_id)
         message_id = int(message_id)
         await interaction.response.defer()
@@ -185,9 +187,10 @@ Eleventh to Twentieth - `1 Point`
         self,
         interaction: Interaction,
         message_id: str,
-        channel_id: str,
+        channel_name: TextChannel,
     ):
         """End the challenge"""
+        channel_id = channel_name.id
         channel_id = int(channel_id)
         message_id = int(message_id)
         print("HELLO")
