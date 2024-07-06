@@ -152,7 +152,7 @@ async def yo(interaction: discord.Interaction, name: str):
 @client.tree.command()
 async def join(
     interaction: discord.Interaction,
-    channel_name: discord.TextChannel,
+    channel_name: discord.VoiceChannel,
     message_append: str = None,
     mute: bool = False,
     deafen: bool = False,
