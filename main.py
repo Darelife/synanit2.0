@@ -69,15 +69,10 @@ client = Synanit()
 
 
 @client.event
-async def on_ready():
-    print("Ready!")
-
-
-async def load():
-    for filename in os.listdir("./Cogs"):
-        if filename.endswith(".py"):
-            await client.load_extension(f"Cogs.{filename[:-3]}")
-
+async def on_member_join(member):
+    role_id = 1263188323070119946
+    role = member.guild.get_role(role_id)
+    await member.add_roles(role)
 
 @client.event
 async def on_presence_update(before, after):
