@@ -61,8 +61,8 @@ class Synanit(Bot):
         ALGO_GUILD = Object(id=1246441351965446236)
         await self.tree.sync(guild=MY_GUILD)
         await self.tree.sync(guild=ALGO_GUILD)
-        self.tree.copy_global_to(guild=ALGO_GUILD)
-        await self.tree.sync(guild=ALGO_GUILD)
+        # self.tree.copy_global_to(guild=ALGO_GUILD)
+        # await self.tree.sync(guild=ALGO_GUILD)
 
 
 client = Synanit()
