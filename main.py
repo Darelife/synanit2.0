@@ -74,6 +74,7 @@ async def on_member_join(member):
     role = member.guild.get_role(role_id)
     await member.add_roles(role)
 
+
 @client.event
 async def on_presence_update(before, after):
     if after.status != before.status:
@@ -288,6 +289,17 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
             if isinstance(item, discord.ui.Button):
                 item.disabled = True
         await button_interaction.message.edit(view=view)
+
+
+from postIdeaAlgo import plotStuff
+
+
+@client.tree.command()
+async def contestplot(interaction: discord.Interaction, contestid: int):
+    # defer
+    await interaction.response.defer()
+    plotStuff(contestid)
+    await interaction.followup.send(file=discord.File("plot.png"), ephemeral=False)
 
 
 @client.tree.command()
