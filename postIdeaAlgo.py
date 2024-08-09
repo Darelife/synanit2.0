@@ -1,6 +1,8 @@
 from matplotlib import pyplot as plt
 import requests
 
+algoRanksOnly = []
+
 
 def get_color_by_rating(rating):
     if rating > 2400:
@@ -57,7 +59,8 @@ def getData(contestId):
                     # "performance": oldRating + (newRating - oldRating) * 4
                 }
             )
-
+            algoRanksOnly.append(entry["rank"])
+    algoRanksOnly.sort()
     x = rankings
     y = points
     # Sort algoRanks by rank
@@ -80,7 +83,7 @@ def adjust_y_positions(y_positions, y, min_distance):
     return y
 
 
-def plotStuff(contestId: int):
+def plotStuff(contestId: int, display_limit: int = 10):
     x, y, algoRanks, points, rankings = getData(contestId)
     # Plot settings
     plt.style.use("dark_background")
@@ -93,7 +96,6 @@ def plotStuff(contestId: int):
     font_properties = {"family": "monospace", "weight": "bold", "size": 10}
 
     # Draw vertical lines and add annotations with arrows
-    display_limit = 10
     min_distance = max(points) * 0.05
     y_positions = []
 
@@ -137,7 +139,7 @@ def plotStuff(contestId: int):
     # Plot line
     plt.plot(rankings, points, color=line_color, linewidth=2, alpha=0.8)
     # Plot settings
-    plt.xlim(0, max(rankings) + 10)
+    plt.xlim(0, (algoRanksOnly[display_limit]) + 1000)
     plt.ylim(0, max(points) * 1.1)
     plt.title(
         f"Rank vs Points for Contest {contestId}",
