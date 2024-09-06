@@ -11,6 +11,7 @@ from discord.ext.commands import Context, Greedy, Bot
 from discord.errors import HTTPException
 from discord import app_commands
 from discord.ui import Button, View
+from postIdeaAlgo import plotStuff
 import keep_alive
 import requests
 import random
@@ -289,9 +290,6 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
             if isinstance(item, discord.ui.Button):
                 item.disabled = True
         await button_interaction.message.edit(view=view)
-
-
-from postIdeaAlgo import plotStuff
 
 
 @client.tree.command()

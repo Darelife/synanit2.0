@@ -1,13 +1,14 @@
 from discord import app_commands, TextChannel
-from discord import File, Object, Member
-from discord import Colour, Interaction
-from discord.app_commands import Choice, Range, command, describe
+from discord import Object, Interaction
 from discord.ext import commands
-from discord.ui import View
 import requests
 import interactions
 import random
 import json
+
+# from discord import File, Colour, Member
+# from discord.app_commands import Choice, Range, command, describe
+# from discord.ui import View
 
 
 class codeforces(commands.Cog):
@@ -345,7 +346,7 @@ Eleventh to Twentieth - `1 Point`
         channel = self.bot.get_channel(1251518237951131698)
         message = await channel.fetch_message(1252313189169758268)
         await message.edit(
-            content=f"""LEADERBOARD
+            content="""LEADERBOARD
 ```
 1. Darelife - 0
 2. prakharg11 - 0
