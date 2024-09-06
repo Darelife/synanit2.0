@@ -1,11 +1,10 @@
-from discord import app_commands, TextChannel
-from discord import File, Object, Member
-from discord import Colour, Interaction
+from discord import app_commands, Object, Interaction
 from discord.ext import commands
 from discord.ui import Button, View
 import time
 import random
 import requests
+# from discord import File, TextChanel, Member, Colour
 
 
 class ButtonView(View):
@@ -68,7 +67,7 @@ class tictactoe(commands.Cog):
         data = response.json()
         problems = data["result"]["problems"]
         problemSet = {}
-        ratingDelta = 0
+        # ratingDelta = 0
         # ratings = [average_rating, average_rating, average_rating, average_rating]
         ratings = []
         lowerBound = max(800, average_rating - 200)
@@ -97,7 +96,7 @@ class tictactoe(commands.Cog):
             if problem["rating"] in ratings:
                 try:
                     problemSet[problem["rating"]].append(problem)
-                except:
+                except KeyError:
                     problemSet[problem["rating"]] = [problem]
 
         problemsChosen = []
@@ -110,7 +109,7 @@ class tictactoe(commands.Cog):
             text += f"[{str(i+1).zfill(2)}]({url}) "
             if (i + 1) % board_size == 0:
                 text += "\n"
-        view = ButtonView()
+        # view = ButtonView()
         start = time.time()
         while (time.time() - start) < time_limit:
             table[0][0] = " X"

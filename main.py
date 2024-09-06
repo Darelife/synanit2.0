@@ -1,10 +1,8 @@
 import discord
-from discord.ext import commands
 import json
 import os
 import aiohttp
 import datetime
-import logging
 from typing import Literal, Optional
 from discord import Object
 from discord.ext.commands import Context, Greedy, Bot
@@ -17,6 +15,8 @@ import requests
 import random
 import interactions
 import asyncio
+# from discord.ext import commands
+# import logging
 
 # TODO : If you are running it locally, uncomment the below line and comment the one after that
 # with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
@@ -261,7 +261,7 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
                     # print("Button clicked!")  # it works
                     problem = random.choice(problemSet)
                     problemName = f'{problem["index"]}. {problem["name"]}'
-                    problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+                    # problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
                     embeds = interactions.Embed(
                         title=problemName,
                         description=f"Rating: `{problem['rating']}`",

@@ -79,7 +79,7 @@ class codeforces(commands.Cog):
             color = random.choice(colours)
             problem = random.choice(problemSet)
             problemName = f'{problem["index"]}. {problem["name"]}'
-            problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+            # problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
             embeds = interactions.Embed(
                 title=problemName,
                 description=f"Rating: `{problem['rating']}`",
@@ -287,7 +287,7 @@ Eleventh to Twentieth - `1 Point`
                 j = i.split(". ")
                 k = j[1].split(" - ")
                 points[k[0]] = int(k[1])
-            except:
+            except IndexError:
                 pass
             # j = i.split(". ")
             # k = j[1].split(" - ")
