@@ -4,6 +4,8 @@ from discord.ui import Button, View
 import time
 import random
 import requests
+import asyncio
+# import json
 # from discord import File, TextChanel, Member, Colour
 
 
@@ -19,7 +21,20 @@ class ButtonView(View):
         )
 
 
-def get_board_string(board):
+def getRatings(average_rating, board_size):
+    ratings = []
+    lowerBound = max(800, average_rating - 200)
+    upperBound = min(2200, average_rating + 200)
+    size = (upperBound - lowerBound) / 100 + 1
+    rangee = []
+    for i in range(int(size)):
+        rangee.append(lowerBound + i * 100)
+    for i in range(board_size * board_size):
+        ratings.append(random.choice(rangee))
+    return ratings
+
+
+def get_board_string(board: list[list[any]]):
     board_string = "```"
     cnt = 0
     for row in board:
@@ -29,6 +44,69 @@ def get_board_string(board):
         cnt += 1
     board_string += "```"
     return board_string.strip()
+
+
+def callForUpdate(
+    id: str,
+    problemsChosen: list[any],
+    startTime: int,
+):
+    url = f"https://codeforces.com/api/user.status?handle={id}&count=200"
+    response = requests.get(url)
+    data = response.json()["result"]
+    result = []
+    # with open("checkingTicTacToe.json", "w") as f:
+    #     json.dump(data, f, indent=2)
+    # with open("checkingTicTacToeProblems.json", "w") as f:
+    #     json.dump(problemsChosen, f, indent=2)
+    for i in problemsChosen:
+        solved = False
+        time = 0
+        for j in data:
+            if (i["contestId"] == j["contestId"]) and (
+                i["index"] == j["problem"]["index"]
+            ):
+                if ("verdict" in j) and ("creationTimeSeconds" in j):
+                    if j["verdict"] == "OK":
+                        if j["creationTimeSeconds"] > startTime:
+                            print("FOUNDDDDD")
+                            solved = True
+                            time = j["creationTimeSeconds"]
+                            break
+
+        result.append((solved, time))
+        # with open(f"user{id}.json", "w") as f:
+        #     json.dump(result, f, indent=2)
+    return result
+
+
+def checkForUpdates(
+    board: list[list[any]],
+    id1: str,
+    id2: str,
+    problemsChosen: list[any],
+    startTime: int,
+):
+    result1 = callForUpdate(id1, problemsChosen, startTime)
+    result2 = callForUpdate(id2, problemsChosen, startTime)
+    for i in range(len(board) * len(board)):
+        one, two = False, False
+        if result1[i][0]:
+            one = True
+        if result2[i][0]:
+            two = True
+        if one and two:
+            if result1[i][1] < result2[i][1]:
+                two = False
+            else:
+                one = False
+        if one:
+            board[i // len(board)][i % len(board)] = " X"
+        elif two:
+            board[i // len(board)][i % len(board)] = " O"
+
+    # board = get_board_string(board)
+    return board
 
 
 class tictactoe(commands.Cog):
@@ -59,32 +137,13 @@ class tictactoe(commands.Cog):
             ]
             for j in range(1, board_size + 1)
         ]
-        message = await interaction.followup.send(
-            f"**Tic Tac Toe**\n{get_board_string(table)}"
-        )
         url = "https://codeforces.com/api/problemset.problems"
         response = requests.get(url)
         data = response.json()
         problems = data["result"]["problems"]
         problemSet = {}
-        # ratingDelta = 0
-        # ratings = [average_rating, average_rating, average_rating, average_rating]
-        ratings = []
-        lowerBound = max(800, average_rating - 200)
-        upperBound = min(2200, average_rating + 200)
-        size = (upperBound - lowerBound) / 100 + 1
-        rangee = []
-        for i in range(int(size)):
-            rangee.append(lowerBound + i * 100)
-        for i in range(board_size * board_size):
-            ratings.append(random.choice(rangee))
 
-            # if i % 2 == 0:
-            #     ratings.append(max(800, average_rating - ratingDelta))
-            # else:
-            #     ratings.append(min(2200, average_rating + ratingDelta))
-            # if i % 4 == 0:
-            #     ratingDelta += 100
+        ratings = getRatings(average_rating, board_size)
 
         for problem in problems:
             if "contestId" not in problem:
@@ -110,13 +169,28 @@ class tictactoe(commands.Cog):
             if (i + 1) % board_size == 0:
                 text += "\n"
         # view = ButtonView()
+        message = await interaction.followup.send(
+            f"**Tic Tac Toe**\n{text}{get_board_string(table)}"
+        )
         start = time.time()
         while (time.time() - start) < time_limit:
-            table[0][0] = " X"
-            await message.edit(
-                content=f"**Tic Tac Toe**\n{text}{get_board_string(table)}"
+            # table[0][0] = " X"
+            # table = get_board_string(table)
+            # table = checkForUpdates(
+            #     table, codeforce_id_1, codeforce_id_2, problemsChosen
+            # )
+            # table = get_board_string(table)
+            # await message.edit(content=f"**Tic Tac Toe**\n{text}{table}")
+            # # time.sleep(90)
+            # await asyncio.sleep(60)
+            # Update the board in place without converting to a string.
+            await asyncio.sleep(60)
+            table = checkForUpdates(
+                table, codeforce_id_1, codeforce_id_2, problemsChosen, start
             )
-            break
+            # Create a string representation for display purposes only.
+            board_display = get_board_string(table)
+            await message.edit(content=f"**Tic Tac Toe**\n{text}{board_display}")
         # print(message)
 
 

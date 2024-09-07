@@ -1,5 +1,4 @@
 import discord
-import json
 import os
 import aiohttp
 import datetime
@@ -15,6 +14,7 @@ import requests
 import random
 import interactions
 import asyncio
+# import json
 # from discord.ext import commands
 # import logging
 
@@ -227,7 +227,7 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
         if problemSet:
             problem = random.choice(problemSet)
             problemName = f'{problem["index"]}. {problem["name"]}'
-            problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
+            # problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
             embeds = interactions.Embed(
                 title=problemName,
                 description=f"Rating: `{problem['rating']}`",
