@@ -163,11 +163,13 @@ class tictactoe(commands.Cog):
             index = random.randint(0, len(problemSet[ratings[i]]) - 1)
             problemsChosen.append(problemSet[ratings[i]].pop(index))
         text = ""
+        textList = []
         for i in range(board_size * board_size):
             url = f"<https://codeforces.com/problemset/problem/{problemsChosen[i]['contestId']}/{problemsChosen[i]['index']}>"
             text += f"[{str(i+1).zfill(2)}]({url}) "
             if (i + 1) % board_size == 0:
                 text += "\n"
+            textList.append(f"[{str(i+1).zfill(2)}]({url})")
         # view = ButtonView()
         message = await interaction.followup.send(
             f"**Tic Tac Toe**\n{text}{get_board_string(table)}"
@@ -188,8 +190,23 @@ class tictactoe(commands.Cog):
             table = checkForUpdates(
                 table, codeforce_id_1, codeforce_id_2, problemsChosen, start
             )
+            for i in range(len(table)):
+                for j in range(len(table[i])):
+                    if table[i][j] == " X":
+                        initialText = textList[i * len(table) + j]
+                        url = initialText.split("(")[1].split(")")[0]
+                        textList[i * len(table) + j] = f"[❌]({url})"
+                    elif table[i][j] == " O":
+                        initialText = textList[i * len(table) + j]
+                        url = initialText.split("(")[1].split(")")[0]
+                        textList[i * len(table) + j] = f"[⭕]({url})"
             # Create a string representation for display purposes only.
             board_display = get_board_string(table)
+            text = ""
+            for i in range(board_size * board_size):
+                text += textList[i] + " "
+                if (i + 1) % board_size == 0:
+                    text += "\n"
             await message.edit(content=f"**Tic Tac Toe**\n{text}{board_display}")
         # print(message)
 
@@ -197,4 +214,4 @@ class tictactoe(commands.Cog):
 async def setup(bot: commands.Bot):
     await bot.add_cog(tictactoe(bot))
     # Assuming `tree` is your app command tree instance
-    await bot.tree.sync(guild=Object(1246441351965446236))
+    # await bot.tree.sync(guild=Object(1246441351965446236))

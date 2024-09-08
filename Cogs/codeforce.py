@@ -363,4 +363,4 @@ Eleventh to Twentieth - `1 Point`
 async def setup(bot: commands.Bot):
     await bot.add_cog(codeforces(bot))
     # Assuming `tree` is your app command tree instance
-    await bot.tree.sync(guild=Object(1246441351965446236))
+    # await bot.tree.sync(guild=Object(1246441351965446236))
