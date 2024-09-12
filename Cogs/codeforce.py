@@ -1,12 +1,11 @@
 from discord import app_commands, TextChannel
-from discord import Object, Interaction
+from discord import Interaction
 from discord.ext import commands
 import requests
 import interactions
 import random
 import json
-
-# from discord import File, Colour, Member
+# from discord import File, Colour, Member, Object
 # from discord.app_commands import Choice, Range, command, describe
 # from discord.ui import View
 

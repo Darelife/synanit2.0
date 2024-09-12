@@ -1,4 +1,4 @@
-from discord import app_commands, Object, Interaction
+from discord import app_commands, Interaction
 from discord.ext import commands
 from discord.ui import Button, View
 import time
@@ -6,7 +6,7 @@ import random
 import requests
 import asyncio
 # import json
-# from discord import File, TextChanel, Member, Colour
+# from discord import File, TextChanel, Member, Colour, Object
 
 
 class ButtonView(View):
@@ -15,8 +15,8 @@ class ButtonView(View):
         # self.questionNumber = questionNumber
         self.add_item(
             Button(
-                label="🔄️ Refresh",
-                custom_id="refreshCodeforceQuestion",
+                label="🔄️",
+                custom_id="refreshTicTacToe",
             )
         )
 
@@ -170,11 +170,13 @@ class tictactoe(commands.Cog):
             if (i + 1) % board_size == 0:
                 text += "\n"
             textList.append(f"[{str(i+1).zfill(2)}]({url})")
-        # view = ButtonView()
+        view = ButtonView()
         message = await interaction.followup.send(
-            f"**Tic Tac Toe**\n{text}{get_board_string(table)}"
+            f"**Tic Tac Toe**\n{text}{get_board_string(table)}",
+            view=view,
         )
         start = time.time()
+        # lastRefresh = start
         while (time.time() - start) < time_limit:
             # table[0][0] = " X"
             # table = get_board_string(table)
@@ -186,28 +188,46 @@ class tictactoe(commands.Cog):
             # # time.sleep(90)
             # await asyncio.sleep(60)
             # Update the board in place without converting to a string.
-            await asyncio.sleep(60)
-            table = checkForUpdates(
-                table, codeforce_id_1, codeforce_id_2, problemsChosen, start
-            )
-            for i in range(len(table)):
-                for j in range(len(table[i])):
-                    if table[i][j] == " X":
-                        initialText = textList[i * len(table) + j]
-                        url = initialText.split("(")[1].split(")")[0]
-                        textList[i * len(table) + j] = f"[❌]({url})"
-                    elif table[i][j] == " O":
-                        initialText = textList[i * len(table) + j]
-                        url = initialText.split("(")[1].split(")")[0]
-                        textList[i * len(table) + j] = f"[⭕]({url})"
-            # Create a string representation for display purposes only.
-            board_display = get_board_string(table)
-            text = ""
-            for i in range(board_size * board_size):
-                text += textList[i] + " "
-                if (i + 1) % board_size == 0:
-                    text += "\n"
-            await message.edit(content=f"**Tic Tac Toe**\n{text}{board_display}")
+            # await asyncio.sleep(300)
+            # if time.time() - lastRefresh < 300:
+            #     lastRefresh = time.time()
+            #     continue
+            try:
+                button_interaction = await self.bot.wait_for(
+                    "interaction", timeout=2000
+                )
+                if button_interaction.data["custom_id"] != "refreshTicTacToe":
+                    continue
+                await button_interaction.response.defer()
+                table = checkForUpdates(
+                    table, codeforce_id_1, codeforce_id_2, problemsChosen, start
+                )
+                for i in range(len(table)):
+                    for j in range(len(table[i])):
+                        if table[i][j] == " X":
+                            initialText = textList[i * len(table) + j]
+                            url = initialText.split("(")[1].split(")")[0]
+                            textList[i * len(table) + j] = f"[❌]({url})"
+                        elif table[i][j] == " O":
+                            initialText = textList[i * len(table) + j]
+                            url = initialText.split("(")[1].split(")")[0]
+                            textList[i * len(table) + j] = f"[⭕]({url})"
+                # Create a string representation for display purposes only.
+                board_display = get_board_string(table)
+                text = ""
+                for i in range(board_size * board_size):
+                    text += textList[i] + " "
+                    if (i + 1) % board_size == 0:
+                        text += "\n"
+                await button_interaction.message.edit(
+                    content=f"**Tic Tac Toe**\n{text}{board_display}"
+                )
+            except asyncio.TimeoutError:
+                for item in view.children:
+                    if isinstance(item, Button):
+                        item.disabled = True
+                await message.edit(view=view)
+                break
         # print(message)
 
 
