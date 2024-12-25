@@ -18,7 +18,7 @@ import json
 # from discord.ext import commands
 # import logging
 
-dev = True
+dev = False
 
 if dev:
     with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
