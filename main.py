@@ -14,15 +14,18 @@ import requests
 import random
 import interactions
 import asyncio
-# import json
+import json
 # from discord.ext import commands
 # import logging
 
-# TODO : If you are running it locally, uncomment the below line and comment the one after that
-# with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
-#     secrets = json.load(f)
-#     token = secrets["TOKEN"]
-token = os.getenv("TOKEN")
+dev = True
+
+if dev:
+    with open("E:\\Programming\\bots\\synanit2.0\\secrets.json") as f:
+        secrets = json.load(f)
+        token = secrets["TOKEN"]
+else:
+    token = os.getenv("TOKEN")
 
 
 class Synanit(Bot):
@@ -317,6 +320,7 @@ async def invite(interaction: discord.Interaction):
 # handler.setFormatter(formatter)
 # logger.addHandler(handler)
 
-keep_alive.keep_alive()
+if not dev:
+    keep_alive.keep_alive()
 
 client.run(token)

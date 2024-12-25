@@ -1,12 +1,17 @@
 from discord import app_commands, Interaction
 from discord.ext import commands
 from discord.ui import Button, View
-import time
-import random
 import requests
-import asyncio
-# import json
-# from discord import File, TextChanel, Member, Colour, Object
+import json
+import os
+import hashlib
+import time
+from dotenv import load_dotenv
+# import random
+
+load_dotenv()
+KEY = os.getenv("KEY")
+SECRET = os.getenv("SECRET")
 
 
 class ButtonView(View):
@@ -21,17 +26,52 @@ class ButtonView(View):
         )
 
 
-def getRatings(average_rating, board_size):
-    ratings = []
-    lowerBound = max(800, average_rating - 200)
-    upperBound = min(2200, average_rating + 200)
-    size = (upperBound - lowerBound) / 100 + 1
-    rangee = []
-    for i in range(int(size)):
-        rangee.append(lowerBound + i * 100)
-    for i in range(board_size * board_size):
-        ratings.append(random.choice(rangee))
-    return ratings
+def userStatus(handle: str):
+    methodName = "user.status"
+    URL = f"https://codeforces.com/api/{methodName}"
+    currentTime = int(time.time())
+    rand = 694200
+
+    hashString = (
+        f"{rand}/{methodName}?apiKey={KEY}&handle={handle}&time={currentTime}#{SECRET}"
+    )
+    apiSig = hashlib.sha512(hashString.encode()).hexdigest()
+
+    response = requests.get(
+        URL,
+        params={
+            "handle": handle,
+            "apiKey": KEY,
+            "time": currentTime,
+            "apiSig": f"{rand}{apiSig}",
+        },
+    )
+    return json.loads(response.text)["result"]
+
+
+def contestStandings(contestId: int):
+    methodName = "contest.standings"
+    URL = f"https://codeforces.com/api/{methodName}"
+    currentTime = int(time.time())
+    rand = 694200
+
+    hashString = f"{rand}/{methodName}?apiKey={KEY}&contestId={contestId}&time={currentTime}#{SECRET}"
+    apiSig = hashlib.sha512(hashString.encode()).hexdigest()
+
+    response = requests.get(
+        URL,
+        params={
+            "contestId": contestId,
+            "apiKey": KEY,
+            "time": currentTime,
+            "apiSig": f"{rand}{apiSig}",
+        },
+    )
+    print(response.url)
+    data = json.loads(response.text)
+    if "result" not in data:
+        return [], -1
+    return data["result"]["problems"], len(data["result"]["problems"])
 
 
 def get_board_string(board: list[list[any]]):
@@ -51,21 +91,27 @@ def callForUpdate(
     problemsChosen: list[any],
     startTime: int,
 ):
-    url = f"https://codeforces.com/api/user.status?handle={id}&count=200"
-    response = requests.get(url)
-    data = response.json()["result"]
+    # url = f"https://codeforces.com/api/user.status?handle={id}&count=400"
+    # response = requests.get(url)
+    data = userStatus(id)
     result = []
     # with open("checkingTicTacToe.json", "w") as f:
     #     json.dump(data, f, indent=2)
     # with open("checkingTicTacToeProblems.json", "w") as f:
     #     json.dump(problemsChosen, f, indent=2)
+    with open("checkingTicTacToeProblems.json", "w") as f:
+        json.dump(data, f, indent=2)
+    with open("checkingTicTacToeProblems2.json", "w") as f:
+        json.dump(problemsChosen, f, indent=2)
     for i in problemsChosen:
         solved = False
         time = 0
         for j in data:
-            if (i["contestId"] == j["contestId"]) and (
+            if (
                 i["index"] == j["problem"]["index"]
+                and i["contestId"] == j["problem"]["contestId"]
             ):
+                print("Comeon!!!")
                 if ("verdict" in j) and ("creationTimeSeconds" in j):
                     if j["verdict"] == "OK":
                         if j["creationTimeSeconds"] > startTime:
@@ -109,27 +155,38 @@ def checkForUpdates(
     return board
 
 
-class tictactoe(commands.Cog):
+class apl(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="tictactoe")
-    async def _tictactoe(
+    @app_commands.command(name="apl")
+    async def _apl(
         self,
         interaction: Interaction,
-        average_rating: int,
-        board_size: int,
+        contest_id: int,
         codeforce_id_1: str,
         codeforce_id_2: str,
-        time_limit: int = 7200,
     ):
-        """Play a game of tic-tac-toe"""
-        await interaction.response.defer()
-        if (average_rating < 800) or (average_rating > 2200):
-            await interaction.followup.send(
-                "Average rating must be between 800 and 2200"
+        if interaction.user.id != 497352662451224578:
+            await interaction.response.send_message(
+                "You are not allowed to use this command", ephemeral=True
             )
             return
+        """Clear all bets"""
+        await interaction.response.defer()
+
+        problems, n = contestStandings(contest_id)
+
+        if n == -1:
+            await interaction.edit_original_response(content="Invalid contest id")
+            return
+        if n != 25:
+            await interaction.edit_original_response(content=f"not 25 problems -> {n}")
+            with open("checkingTicTacToeProblems.json", "w") as f:
+                json.dump(problems, f, indent=2)
+            return
+
+        board_size = 5
         table = [
             [
                 f"{str(i+j*(board_size)-board_size).zfill(2)}"
@@ -137,66 +194,39 @@ class tictactoe(commands.Cog):
             ]
             for j in range(1, board_size + 1)
         ]
-        url = "https://codeforces.com/api/problemset.problems"
-        response = requests.get(url)
-        data = response.json()
-        problems = data["result"]["problems"]
-        problemSet = {}
+        problemsChosen = problems
+        questions = []
+        for i in range(25):
+            questions.append(
+                f"https://codeforces.com/gym/{contest_id}/problem/{problems[i]['index']}"
+            )
 
-        ratings = getRatings(average_rating, board_size)
+        # random.shuffle(questions)
 
-        for problem in problems:
-            if "contestId" not in problem:
-                continue
-            if problem["contestId"] < 1286:
-                continue
-            if "rating" not in problem:
-                continue
-            if problem["rating"] in ratings:
-                try:
-                    problemSet[problem["rating"]].append(problem)
-                except KeyError:
-                    problemSet[problem["rating"]] = [problem]
-
-        problemsChosen = []
-        for i in range(board_size * board_size):
-            index = random.randint(0, len(problemSet[ratings[i]]) - 1)
-            problemsChosen.append(problemSet[ratings[i]].pop(index))
         text = ""
         textList = []
-        for i in range(board_size * board_size):
-            url = f"<https://codeforces.com/problemset/problem/{problemsChosen[i]['contestId']}/{problemsChosen[i]['index']}>"
-            text += f"[{str(i+1).zfill(2)}]({url}) "
+
+        for i in range(25):
+            url = questions[i]
+            text += f"[{str(i+1).zfill(2)}]({questions[i]}) "
             if (i + 1) % board_size == 0:
                 text += "\n"
             textList.append(f"[{str(i+1).zfill(2)}]({url})")
+
         view = ButtonView()
         message = await interaction.followup.send(
             f"**Tic Tac Toe**\n{text}{get_board_string(table)}",
             view=view,
         )
-        start = time.time()
-        # lastRefresh = start
+
         print(problemsChosen)
 
-        while (time.time() - start) < time_limit:
-            # table[0][0] = " X"
-            # table = get_board_string(table)
-            # table = checkForUpdates(
-            #     table, codeforce_id_1, codeforce_id_2, problemsChosen
-            # )
-            # table = get_board_string(table)
-            # await message.edit(content=f"**Tic Tac Toe**\n{text}{table}")
-            # # time.sleep(90)
-            # await asyncio.sleep(60)
-            # Update the board in place without converting to a string.
-            # await asyncio.sleep(300)
-            # if time.time() - lastRefresh < 300:
-            #     lastRefresh = time.time()
-            #     continue
+        start = time.time()
+        while (time.time() - start) < 5 * 60 * 60:
             try:
                 button_interaction = await self.bot.wait_for(
-                    "interaction", timeout=2000
+                    "interaction",
+                    timeout=2000,  # 33 mins
                 )
                 if button_interaction.data["custom_id"] != "refreshTicTacToe":
                     continue
@@ -224,16 +254,17 @@ class tictactoe(commands.Cog):
                 await button_interaction.message.edit(
                     content=f"**Tic Tac Toe**\n{text}{board_display}"
                 )
-            except asyncio.TimeoutError:
+            except:
                 for item in view.children:
                     if isinstance(item, Button):
                         item.disabled = True
                 await message.edit(view=view)
                 break
-        # print(message)
+
+        # await interaction.edit_original_response(content="All Bets cleared")
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(tictactoe(bot))
+    await bot.add_cog(apl(bot))
     # Assuming `tree` is your app command tree instance
     # await bot.tree.sync(guild=Object(1246441351965446236))
