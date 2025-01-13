@@ -52,6 +52,7 @@
     "index": "G",
     "name": "Many Games",
     "type": "PROGRAMMING",
+    "rating": 2900,
     "tags": []
   },
   {
@@ -59,6 +60,7 @@
     "index": "H",
     "name": "Skipping",
     "type": "PROGRAMMING",
+    "rating": 1700,
     "tags": []
   },
   {

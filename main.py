@@ -63,6 +63,8 @@ class Synanit(Bot):
         print("Ready!")
         MY_GUILD = Object(id=697493731611508737)
         ALGO_GUILD = Object(id=1246441351965446236)
+        print("ID")
+        print(self.user.id)
         await self.tree.sync(guild=MY_GUILD)
         await self.tree.sync(guild=ALGO_GUILD)
         # self.tree.copy_global_to(guild=ALGO_GUILD)
@@ -229,7 +231,7 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
     try:
         if problemSet:
             problem = random.choice(problemSet)
-            problemName = f'{problem["index"]}. {problem["name"]}'
+            problemName = f"{problem['index']}. {problem['name']}"
             # problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
             embeds = interactions.Embed(
                 title=problemName,
@@ -263,7 +265,7 @@ async def qplz(interaction: discord.Interaction, rating: int = 1500, tag: str = 
                     await button_interaction.response.defer()
                     # print("Button clicked!")  # it works
                     problem = random.choice(problemSet)
-                    problemName = f'{problem["index"]}. {problem["name"]}'
+                    problemName = f"{problem['index']}. {problem['name']}"
                     # problemLink = f"[{problemName}](<https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}>)"
                     embeds = interactions.Embed(
                         title=problemName,
