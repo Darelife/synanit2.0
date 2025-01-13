@@ -12,6 +12,7 @@ SECRET = data["SECRET"]
 
 def contestStandings(contestId: int = 560501):
     methodName = "contest.standings"
+
     URL = f"https://codeforces.com/api/{methodName}"
     currentTime = int(time.time())
     rand = 694200
