@@ -3,23 +3,22 @@ from discord.ext import commands
 from discord.ui import Button, View
 import requests
 import json
-
-# import os
+import os
 import hashlib
 import time
 # from dotenv import load_dotenv
-# import random
+# # import random
 
 # load_dotenv()
 # KEY = os.getenv("KEY")
 # SECRET = os.getenv("SECRET")
-KEY = ""
-SECRET = ""
-with open("secrets.json", "r") as f:
-    data = json.load(f)
+# KEY = ""
+# SECRET = ""
+# with open("secrets.json", "r") as f:
+#     data = json.load(f)
 
-KEY = data["KEY"]
-SECRET = data["SECRET"]
+KEY = os.getenv("KEY")
+SECRET = os.getenv("SECRET")
 
 
 class ButtonView(View):
