@@ -2,3 +2,5 @@ secrets.json
 userlog.txt
 .env
 Cogs/__pycache__
+venv
+env.yaml

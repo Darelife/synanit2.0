@@ -35,37 +35,48 @@ def getData(contestId):
     perf = []
 
     # Read users from file
-    with open("./ignore/users.txt", "r") as f:
-        users = f.read().split("\n")
+    # with open("./ignore/users.txt", "r") as f:
+    #     users = f.read().split("\n")
+    url = "https://algoxxx.onrender.com/database"
+    response = requests.get(url)
+    users_data = response.json()
+    users = []
+    for i in users_data:
+        users.append(i["cfid"].lower())
+    
+    # print(users)
 
     # Collect data for users
     algoRanks = []
     for i in data:
-        entry = i
-        # perfStuff = data2[i]
-        # oldRating = perfStuff["oldRating"]
-        # newRating = perfStuff["newRating"]
-        rank = entry["rank"]
-        rankings.append(entry["rank"])
-        points.append(entry["points"] * 500 - entry["penalty"])
-        # perf.append(oldRating + (newRating - oldRating) * 4)
+        try:
+            entry = i
+            # perfStuff = data2[i]
+            # oldRating = perfStuff["oldRating"]
+            # newRating = perfStuff["newRating"]
+            rank = entry["rank"]
+            rankings.append(entry["rank"])
+            points.append(entry["points"] * 500 - entry["penalty"])
+            # perf.append(oldRating + (newRating - oldRating) * 4)
 
-        if entry["party"]["members"][0]["handle"] in users:
-            algoRanks.append(
-                {
-                    "user": entry["party"]["members"][0]["handle"],
-                    "rank": entry["rank"],
-                    "points": entry["points"] * 500 - entry["penalty"],
-                    # "performance": oldRating + (newRating - oldRating) * 4
-                }
-            )
-            algoRanksOnly.append(entry["rank"])
+            if entry["party"]["members"][0]["handle"].lower() in [u.lower() for u in users]:
+                algoRanks.append(
+                    {
+                        "user": entry["party"]["members"][0]["handle"].lower(),
+                        "rank": entry["rank"],
+                        "points": entry["points"] * 500 - entry["penalty"],
+                        # "performance": oldRating + (newRating - oldRating) * 4
+                    }
+                )
+                algoRanksOnly.append(entry["rank"])
+        except:
+            pass
     algoRanksOnly.sort()
     x = rankings
     y = points
     # Sort algoRanks by rank
     algoRanks.sort(key=lambda x: x["rank"])
-    users = [i["user"] for i in algoRanks]
+    users = [i["user"].lower() for i in algoRanks]
     handles = ";".join(users)
     urrl = f"https://codeforces.com/api/user.info?handles={handles}&checkHistoricHandles=false"
     response = requests.get(urrl)
