@@ -6,10 +6,10 @@ import json
 import os
 import hashlib
 import time
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 # # import random
 
-# load_dotenv()
+load_dotenv()
 # KEY = os.getenv("KEY")
 # SECRET = os.getenv("SECRET")
 # KEY = ""
