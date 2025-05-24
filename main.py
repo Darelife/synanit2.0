@@ -14,8 +14,8 @@ import random
 import interactions
 import asyncio
 import json
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 # import keep_alive
 # from discord.ext import commands
 # import logging
@@ -186,6 +186,113 @@ class ButtonView(View):
             )
         )
 
+
+#TODO: Leetcode doesn't work....doesn't have a proper api
+@client.tree.command(name="randomproblem")
+@app_commands.describe(
+    rating="800-2500. For a range, 1400:1800, and for union, |, 1400:1700|1800"
+)
+async def randomproblem(interaction: discord.Interaction, rating: str):
+    await interaction.response.defer()
+    colours = [0xDC143C, 0xD35400, 0x48C9B0, 0x7FB3D5]
+    color = random.choice(colours)
+
+    def parse_rating(rating_str):
+        rating_str = rating_str.upper().replace(" ", "")
+        rating_ranges = []
+        for part in rating_str.split("|"):
+            if part in ["E", "EASY"]:
+                rating_ranges.append(("leetcode", "EASY"))
+            elif part in ["M", "MEDIUM"]:
+                rating_ranges.append(("leetcode", "MEDIUM"))
+            elif part in ["H", "HARD"]:
+                rating_ranges.append(("leetcode", "HARD"))
+            elif ":" in part:
+                try:
+                    low, high = map(int, part.split(":"))
+                    rating_ranges.append(("codeforces", (low, high)))
+                except Exception:
+                    pass
+            else:
+                try:
+                    val = int(part)
+                    rating_ranges.append(("codeforces", (val, val)))
+                except Exception:
+                    pass
+        return rating_ranges
+
+    rating_ranges = parse_rating(rating)
+
+    cf_problems = []
+    try:
+        cf_data = requests.get("https://codeforces.com/api/problemset.problems").json()
+        for typ, val in rating_ranges:
+            if typ != "codeforces":
+                continue
+            low, high = val
+            for p in cf_data["result"]["problems"]:
+                if "rating" in p and low <= p["rating"] <= high and "contestId" in p:
+                    cf_problems.append(p)
+    except Exception:
+        pass
+
+    lc_difficulties = [v for t, v in rating_ranges if t == "leetcode"]
+    lc_problem = None
+    if lc_difficulties:
+        try:
+            # Use LeetCode unofficial API
+            resp = requests.post(
+                "https://leetcode.com/graphql",
+                json={
+                    "query": """
+                    query randomQuestion($difficulty: Difficulty) {
+                      randomQuestion(difficulty: $difficulty) {
+                        titleSlug
+                        title
+                        difficulty
+                        questionFrontendId
+                      }
+                    }
+                    """,
+                    "variables": {"difficulty": random.choice(lc_difficulties)},
+                },
+                headers={"Content-Type": "application/json"},
+            )
+            data = resp.json()
+            if "data" in data and data["data"]["randomQuestion"]:
+                lc_problem = data["data"]["randomQuestion"]
+        except Exception:
+            pass
+
+    sources = []
+    if cf_problems:
+        sources.append("codeforces")
+    if lc_problem:
+        sources.append("leetcode")
+
+    if not sources:
+        await interaction.followup.send("No problems found for the given rating.", ephemeral=True)
+        return
+
+    chosen = random.choice(sources)
+    if chosen == "codeforces":
+        problem = random.choice(cf_problems)
+        embed = interactions.Embed(
+            title=f"{problem['index']}. {problem['name']}",
+            description=f"Rating: `{problem['rating']}`",
+            url=f"https://codeforces.com/contest/{problem['contestId']}/problem/{problem['index']}",
+            color=color,
+        )
+        await interaction.followup.send(embeds=[embed], ephemeral=False)
+    else:
+        embed = interactions.Embed(
+            title=f"{lc_problem['questionFrontendId']}. {lc_problem['title']}",
+            description=f"Difficulty: `{lc_problem['difficulty']}`",
+            url=f"https://leetcode.com/problems/{lc_problem['titleSlug']}/",
+            color=color,
+        )
+        await interaction.followup.send(embeds=[embed], ephemeral=False)
+	
 
 # TODO : Currently, if the user doesn't click a button...after a particular time frame, the button doesn't become grey and the user can still click it. Fix this.
 @client.tree.command()
