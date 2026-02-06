@@ -1,7 +1,7 @@
-discord.py==2.3.2
-aiohttp==3.9.5
-requests==2.31.0
-discord-py-interactions==5.12.1
-flask==3.0.2
-matplotlib==3.8.3
-Pillow>=9.0.0
+discord.py
+aiohttp
+python-dotenv
+Pillow
+matplotlib
+requests
+PyNaCl

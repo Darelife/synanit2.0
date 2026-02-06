@@ -1,40 +1,30 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 import os
 import asyncio
-import threading
-import time
-
 from discord import app_commands
-from discord import File, Object, Member
-from discord import Colour, Interaction
-from discord.app_commands import Choice, Range, command, describe
+from discord import File, Interaction
+from discord.app_commands import Choice
 from discord.ext import commands
-from discord.ui import View
+import io
 
-from ContestGraphImageGenerator import ContestGraphImageGenerator
+# Updated import path to use utils
+from utils.ContestGraphImageGenerator import ContestGraphImageGenerator
 
-
-class Slash(commands.Cog):
+class Graphs(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-
-    # @commands.Cog.listener()
-    # async def on_member_join(self, member):
-    #     channel = member.guild.system_channel
-    #     if channel is not None:
-    #         await channel.send(f'Welcome {member.mention}.')
-    # Slash commands
-    @app_commands.command(name="char")
-    async def _character(self, interaction: Interaction, text: str):
-        """Writes the numbers of characters in the string"""
-        await interaction.response.send_message(
-            f"Your string has {len(text)} characters."
-        )
 
     def _is_authorized(self, interaction: Interaction) -> bool:
         # Only allow user with ID 497352662451224578
         return interaction.user.id == 497352662451224578
+
+    @app_commands.command(name="char")
+    async def character(self, interaction: Interaction, text: str):
+        """Writes the numbers of characters in the string"""
+        await interaction.response.send_message(
+            f"Your string has {len(text)} characters."
+        )
 
     @app_commands.command(name="contest_graph")
     @app_commands.describe(
@@ -56,7 +46,7 @@ class Slash(commands.Cog):
         Choice(name="2023", value="2023"),
         Choice(name="2024", value="2024")
     ])
-    async def _contest_graph(
+    async def contest_graph(
         self, 
         interaction: Interaction, 
         contest_id: int,
@@ -87,24 +77,18 @@ class Slash(commands.Cog):
                 overrideContestName=contest_name is not None,
                 overrideText=contest_name or ""
             )
-            generator.generate()
-            return f"{description}.png"
+            return generator.generate() # Returns BytesIO
         
         try:
-            loop = asyncio.get_event_loop()
-            image_path = await loop.run_in_executor(None, generate_image)
+            loop = asyncio.get_running_loop()
+            image_buffer = await loop.run_in_executor(None, generate_image)
             
-            if os.path.exists(image_path):
-                with open(image_path, 'rb') as f:
-                    discord_file = File(f, filename=image_path)
-                    await interaction.followup.send(
-                        f"Contest graph generated for Contest ID: {contest_id}",
-                        file=discord_file
-                    )
-                try:
-                    os.remove(image_path)
-                except OSError:
-                    pass
+            if image_buffer:
+                discord_file = File(image_buffer, filename=f"{description}.png")
+                await interaction.followup.send(
+                    f"Contest graph generated for Contest ID: {contest_id}",
+                    file=discord_file
+                )
             else:
                 await interaction.followup.send(
                     "❌ Failed to generate the contest graph. Please check the contest ID and try again."
@@ -120,7 +104,7 @@ class Slash(commands.Cog):
         contest_id="The Codeforces contest ID",
         contest_name="Override contest name (optional)"
     )
-    async def _quick_graphs(
+    async def quick_graphs(
         self, 
         interaction: Interaction, 
         contest_id: int,
@@ -142,7 +126,7 @@ class Slash(commands.Cog):
         ]
         
         def generate_all_images():
-            generated_files = []
+            generated_buffers = []
             for contestId, descText, imageSelected, regex in params:
                 try:
                     generator = ContestGraphImageGenerator(
@@ -153,34 +137,26 @@ class Slash(commands.Cog):
                         overrideContestName=contest_name is not None,
                         overrideText=contest_name or ""
                     )
-                    generator.generate()
-                    image_path = f"{descText}.png"
-                    if os.path.exists(image_path):
-                        generated_files.append(image_path)
+                    buf = generator.generate()
+                    generated_buffers.append((descText, buf))
                 except Exception as e:
                     print(f"Error generating {descText}: {e}")
-            return generated_files
+            return generated_buffers
         
         try:
-            loop = asyncio.get_event_loop()
-            generated_files = await loop.run_in_executor(None, generate_all_images)
+            loop = asyncio.get_running_loop()
+            generated_buffers = await loop.run_in_executor(None, generate_all_images)
             
-            if generated_files:
+            if generated_buffers:
                 discord_files = []
-                for image_path in generated_files:
-                    with open(image_path, 'rb') as f:
-                        discord_files.append(File(f, filename=os.path.basename(image_path)))
+                for desc, buf in generated_buffers:
+                    discord_files.append(File(buf, filename=f"{desc}.png"))
                 
                 await interaction.followup.send(
                     f"📊 All contest graphs generated for Contest ID: {contest_id}",
                     files=discord_files
                 )
                 
-                for image_path in generated_files:
-                    try:
-                        os.remove(image_path)
-                    except OSError:
-                        pass
             else:
                 await interaction.followup.send(
                     "❌ Failed to generate any contest graphs. Please check the contest ID and try again."
@@ -191,6 +167,25 @@ class Slash(commands.Cog):
                 f"❌ An error occurred while generating the contest graphs: {str(e)}"
             )
 
+    @app_commands.command(name="contestplot")
+    async def contestplot(self, interaction: Interaction, contestid: int):
+         try:
+             # Updated import path to use utils
+             from utils.postIdeaAlgo import plotStuff
+             await interaction.response.defer()
+             
+             loop = asyncio.get_running_loop()
+             buf = await loop.run_in_executor(None, plotStuff, contestid)
+             
+             if buf:
+                 await interaction.followup.send(file=File(buf, filename="plot.png"), ephemeral=False)
+             else:
+                 await interaction.followup.send("Failed to generate plot.")
+                 
+         except ImportError:
+             await interaction.response.send_message("Plotting module not found.", ephemeral=True)
+         except Exception as e:
+             await interaction.followup.send(f"Error: {e}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Slash(bot))
+    await bot.add_cog(Graphs(bot))

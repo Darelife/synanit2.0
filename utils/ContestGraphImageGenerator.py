@@ -3,6 +3,7 @@ import re
 import requests
 import json
 import io
+import os
 
 class ContestGraphImageGenerator:
     def __init__(self, contestId, descText, imageSelected, regex=r"^(2023|2024|2022).{9}$", overrideContestName=False, overrideText=""):
@@ -21,11 +22,16 @@ class ContestGraphImageGenerator:
         self.titleFont = None
         self.lineFont = None
         self.titleBoldFont = None
+        # Base paths for assets - assuming run from project root
+        self.assets_dir = "./assets"
 
     def fetchDatabase(self):
         url = "https://algoxxx.onrender.com/database"
-        req = requests.get(url)
-        data = req.json()
+        try:
+            req = requests.get(url, timeout=5)
+            data = req.json()
+        except:
+            data = []
         data.append({"_id":"123","name":"Meet Parmar","bitsid":"2023A7PS0406G","cfid":"meeeet"})
         return data
 
@@ -130,7 +136,7 @@ class ContestGraphImageGenerator:
                 graphDraw.ellipse([x-1, y-1, x+1, y+1], 
                     fill=dotColor)
                     
-        smallFont = ImageFont.truetype("./fonts/Montserrat-Light.ttf", 20)
+        smallFont = ImageFont.truetype(os.path.join(self.assets_dir, "fonts/Montserrat-Light.ttf"), 20)
         
         graphDraw.text((graphWidth//2 + 80, graphHeight + 50), "Rank", 
               font=smallFont, fill=self.textColour[self.imageSelected], anchor="mm")
@@ -138,7 +144,7 @@ class ContestGraphImageGenerator:
         graphDraw.text((40, graphHeight//2 + 30), "Points", 
               font=smallFont, fill=self.textColour[self.imageSelected], anchor="mm")
         
-        tinyFont = ImageFont.truetype("./fonts/Montserrat-Light.ttf", 16)
+        tinyFont = ImageFont.truetype(os.path.join(self.assets_dir, "fonts/Montserrat-Light.ttf"), 16)
         
         graphDraw.text((80, graphHeight + 45), str(int(minRank)), 
               font=tinyFont, fill=self.textColour[self.imageSelected], anchor="mm")
@@ -152,7 +158,7 @@ class ContestGraphImageGenerator:
         graphDraw.text((80 + graphWidth * 0.75, graphHeight + 45), str(int(threeQuarterRank)), 
               font=tinyFont, fill=self.textColour[self.imageSelected], anchor="mm")
         
-        graphDraw.text((70, graphHeight + 30), str(int(minPoints)), 
+        graphDraw.text((70, graphHeight + 30), str(int(minRank)), 
               font=tinyFont, fill=self.textColour[self.imageSelected], anchor="rm")
         graphDraw.text((70, 30), str(int(maxPoints)), 
               font=tinyFont, fill=self.textColour[self.imageSelected], anchor="rm")
@@ -190,7 +196,6 @@ class ContestGraphImageGenerator:
                 points = row.get("points", 0)
                 isOurStudent = handle in cfidToName
                 data.append([name, handle, rank, penalty, points, isOurStudent])
-        # Removing file write: with open("t.json", "w") as f: ...
         return data
 
     def getTop5(self, data):
@@ -200,11 +205,12 @@ class ContestGraphImageGenerator:
         return text if len(text) <= 17 else text[:14] + "..."
 
     def setupImage(self):
-        self.background = Image.open(f"./BGCL/{self.imageList[self.imageSelected]}")
+        bg_path = os.path.join(self.assets_dir, "BGCL", self.imageList[self.imageSelected])
+        self.background = Image.open(bg_path)
         self.width, self.height = self.background.size
         self.draw = ImageDraw.Draw(self.background)
-        fontPath = "./fonts/Montserrat-Light.ttf"
-        boldFontPath = "./fonts/Montserrat-Bold.ttf"
+        fontPath = os.path.join(self.assets_dir, "fonts/Montserrat-Light.ttf")
+        boldFontPath = os.path.join(self.assets_dir, "fonts/Montserrat-Bold.ttf")
         self.titleFont = ImageFont.truetype(fontPath, 100)
         self.lineFont = ImageFont.truetype(fontPath, 40)
         self.titleBoldFont = ImageFont.truetype(boldFontPath, 57)
