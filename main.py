@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-dev = True
+dev = False
 
 if dev:
     # It's better to use environment variables or a config file that isn't hardcoded to a specific path if possible,
